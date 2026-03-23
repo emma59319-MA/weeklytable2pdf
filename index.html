@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>週評鑑統計表_框架加固版</title>
+    <title>週評鑑統計表_粗邊框版</title>
     <style>
         /* ==============================
-           1. 一般螢幕顯示樣式 (Screen)
+           1. 螢幕顯示樣式 (保持專業感)
            ============================== */
         body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #f4f7f4; padding: 10px 20px; color: #333; margin: 0; }
-        
         .container { max-width: 1500px; margin: 0 auto; background-color: #fff; padding: 15px 30px 30px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
         
-        /* 專業列印/PDF 按鈕樣式 */
+        /* 綠色圓角按鈕 */
         .print-btn { position: fixed; top: 15px; right: 20px; background-color: #2e7d32; color: white; border: none; padding: 10px 22px; font-size: 14pt; font-weight: bold; border-radius: 50px; cursor: pointer; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .print-btn:hover { background-color: #1b5e20; transform: scale(1.05); }
         
         /* 主標題 43pt */
         h1 { text-align: center; color: #2e7d32; margin-bottom: 5px; font-size: 43pt; font-weight: 900; }
@@ -23,61 +21,51 @@
         .week-input { text-align: right; margin-bottom: 15px; font-size: 18pt; color: #4b0082; font-weight: bold; }
         .week-input input { padding: 5px; border: none; width: 70px; text-align: center; font-size: 18pt; outline: none; background: transparent; color: #4b0082; }
 
-        /* 表格樣式：加厚邊框至 1.5px 以利 PDF 渲染 */
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; border: 1.5px solid #2e7d32; }
-        th, td { border: 1.5px solid #2e7d32; text-align: center; padding: 9px 5px; word-wrap: break-word; line-height: 1.2; }
+        /* [核心優化]：螢幕顯示也同步加深邊框 */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; border: 2.5px solid #2e7d32; }
+        th, td { border: 2.5px solid #2e7d32; text-align: center; padding: 9px 5px; word-wrap: break-word; line-height: 1.2; }
         
-        /* 標題列：強化白色分隔線 */
-        thead tr th { background-color: #2e7d32; color: white; font-weight: bold; font-size: 10pt; height: 40px; border: 1.5px solid white; }
+        /* 標題列：深綠底白字，白色線條也加粗 */
+        thead tr th { background-color: #2e7d32; color: white; font-weight: bold; font-size: 10pt; height: 40px; border: 2px solid white; }
         
         .name-header { width: 60px; }
         .plan-header { width: 140px; font-weight: bold; }
 
         /* 輸入字型 14pt */
         td[contenteditable="true"] { cursor: text; font-size: 14pt; outline: none; min-height: 24px; text-align: center; }
-        td[contenteditable="true"]:focus { background-color: #fffde7; }
 
-        /* 配色樣式 */
+        /* 三色階層 */
         .row-expect { background-color: #ffffff; color: #333; }
         .row-expect .plan-cell { color: #2e7d32; }
-        .row-actual { background-color: #e8f5e9; color: #8B4513; } /* 淡綠背，咖啡字 */
-        .row-diff { background-color: #c8e6c9; color: #d32f2f; font-weight: bold; } /* 中綠背，紅字 */
+        .row-actual { background-color: #e8f5e9; color: #8B4513; } /* 咖啡字 */
+        .row-diff { background-color: #c8e6c9; color: #d32f2f; font-weight: bold; } /* 紅字 */
 
         /* ==============================
-           2. 專業 PDF 列印優化 (Print)
+           2. 專業 PDF 列印加厚樣式 (Print)
            ============================== */
         @media print {
-            @page { 
-                size: A4 landscape; 
-                margin: 0.8cm; 
-            }
-            
-            body { 
-                background-color: white !important; 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important;
-                padding: 0 !important;
-            }
-            
+            @page { size: A4 landscape; margin: 0.8cm; }
+            body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; padding: 0 !important; }
             .container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
             .no-print { display: none !important; }
             
-            /* 調整列印時的標題與邊距 */
-            h1 { font-size: 38pt !important; margin-bottom: 10px !important; }
-            .week-input { color: #4b0082 !important; margin-bottom: 10px !important; }
-
-            /* [關鍵修正]：在 PDF 中強制顯示所有邊框，增加對比度 */
-            table { border: 2px solid #2e7d32 !important; border-collapse: collapse !important; }
+            /* [線條倍增]：強制在 PDF 中使用 2.5pt 的粗線 */
+            table { border: 2.5pt solid #2e7d32 !important; }
             th, td { 
-                border: 1.2pt solid #2e7d32 !important; 
+                border: 2.5pt solid #2e7d32 !important; 
                 -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             thead tr th { 
-                border: 1.2pt solid white !important;
+                border: 2pt solid white !important; /* 標題內的分隔白線也加厚 */
                 background-color: #2e7d32 !important;
             }
             
-            /* 避免表格在頁面底部被切斷 */
+            /* 保持顏色鮮艷 */
+            .row-actual { background-color: #e8f5e9 !important; color: #8B4513 !important; }
+            .row-diff { background-color: #c8e6c9 !important; color: #d32f2f !important; }
+            .week-input { color: #4b0082 !important; }
+
             table { page-break-inside: avoid; margin-bottom: 40px !important; }
         }
     </style>
@@ -120,13 +108,11 @@
             const inE = Array.from(rowE.querySelectorAll('.in-cell'));
             const inA = Array.from(rowA.querySelectorAll('.in-cell'));
             const outD = Array.from(rowD.querySelectorAll('td:not(.plan-cell):not(.name-cell)'));
-
             inE.forEach((eInput, idx) => {
                 let eStr = eInput.innerText.trim();
                 let aStr = inA[idx].innerText.trim();
                 let eV = parseFloat(eStr.replace(/[,%]/g, ''));
                 let aV = parseFloat(aStr.replace(/[,%]/g, ''));
-
                 if (!isNaN(eV) || !isNaN(aV)) {
                     let res = Math.round(((eV || 0) - (aV || 0)) * 100) / 100;
                     let sfx = (eStr.includes('%') || aStr.includes('%')) ? '%' : '';
@@ -136,6 +122,5 @@
         }
     </script>
 </div>
-
 </body>
 </html>
