@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>週評鑑統計表_專業PDF列印版</title>
+    <title>週評鑑統計表_框架加固版</title>
     <style>
         /* ==============================
            1. 一般螢幕顯示樣式 (Screen)
@@ -23,95 +23,68 @@
         .week-input { text-align: right; margin-bottom: 15px; font-size: 18pt; color: #4b0082; font-weight: bold; }
         .week-input input { padding: 5px; border: none; width: 70px; text-align: center; font-size: 18pt; outline: none; background: transparent; color: #4b0082; }
 
-        /* 表格通用樣式 (螢幕壓縮版 Padding 9px) */
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }
-        th, td { border: 1px solid #2e7d32; text-align: center; padding: 9px 5px; word-wrap: break-word; line-height: 1.2; }
+        /* 表格樣式：加厚邊框至 1.5px 以利 PDF 渲染 */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; border: 1.5px solid #2e7d32; }
+        th, td { border: 1.5px solid #2e7d32; text-align: center; padding: 9px 5px; word-wrap: break-word; line-height: 1.2; }
         
-        /* 標題列：深綠底白字分隔線 */
-        thead tr th { background-color: #2e7d32; color: white; font-weight: bold; font-size: 10pt; height: 40px; border: 1px solid white; }
+        /* 標題列：強化白色分隔線 */
+        thead tr th { background-color: #2e7d32; color: white; font-weight: bold; font-size: 10pt; height: 40px; border: 1.5px solid white; }
         
         .name-header { width: 60px; }
         .plan-header { width: 140px; font-weight: bold; }
 
-        /* 輸入字型 14pt，螢幕上居中 */
+        /* 輸入字型 14pt */
         td[contenteditable="true"] { cursor: text; font-size: 14pt; outline: none; min-height: 24px; text-align: center; }
         td[contenteditable="true"]:focus { background-color: #fffde7; }
 
-        /* 螢幕配色樣式維持原樣 */
+        /* 配色樣式 */
         .row-expect { background-color: #ffffff; color: #333; }
         .row-expect .plan-cell { color: #2e7d32; }
         .row-actual { background-color: #e8f5e9; color: #8B4513; } /* 淡綠背，咖啡字 */
         .row-diff { background-color: #c8e6c9; color: #d32f2f; font-weight: bold; } /* 中綠背，紅字 */
 
         /* ==============================
-           2. 專業 PDF 列印樣式 (Print)
+           2. 專業 PDF 列印優化 (Print)
            ============================== */
         @media print {
-            /* 設置紙張大小為 A4 橫向 */
             @page { 
                 size: A4 landscape; 
-                margin: 1cm; 
+                margin: 0.8cm; 
             }
             
             body { 
                 background-color: white !important; 
-                -webkit-print-color-adjust: exact !important; /* 強制 Chrome 列印背景色 */
+                -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important;
                 padding: 0 !important;
             }
             
-            .container { 
-                box-shadow: none !important; 
-                border-radius: 0 !important; 
-                padding: 0 !important; 
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-            
-            /* 列印時隱藏按鈕 */
+            .container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
             .no-print { display: none !important; }
             
-            h1 { font-size: 34pt !important; margin-top: 0 !important; }
-            .week-input { font-size: 16pt !important; color: #4b0082 !important; }
-            
-            /* 強制保留表格所有配色 */
-            thead tr th { 
-                background-color: #2e7d32 !important; 
-                color: white !important; 
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            .row-actual { 
-                background-color: #e8f5e9 !important; 
-                color: #8B4513 !important; 
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            .row-diff { 
-                background-color: #c8e6c9 !important; 
-                color: #d32f2f !important; 
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+            /* 調整列印時的標題與邊距 */
+            h1 { font-size: 38pt !important; margin-bottom: 10px !important; }
+            .week-input { color: #4b0082 !important; margin-bottom: 10px !important; }
 
-            /* 優化表格跨頁斷裂問題 */
-            table { 
-                page-break-inside: avoid; /* 儘量避免表格在人員中間被切斷 */
-                margin-bottom: 30px !important;
+            /* [關鍵修正]：在 PDF 中強制顯示所有邊框，增加對比度 */
+            table { border: 2px solid #2e7d32 !important; border-collapse: collapse !important; }
+            th, td { 
+                border: 1.2pt solid #2e7d32 !important; 
+                -webkit-print-color-adjust: exact !important;
+            }
+            thead tr th { 
+                border: 1.2pt solid white !important;
+                background-color: #2e7d32 !important;
             }
             
-            /* 確保 contenteditable 內容列印 */
-            [contenteditable="true"] {
-                border: none !important;
-            }
+            /* 避免表格在頁面底部被切斷 */
+            table { page-break-inside: avoid; margin-bottom: 40px !important; }
         }
     </style>
 </head>
 <body>
 
-<button class="print-btn no-print" onclick="printToPDF()">🖨️ 列印/轉存PDF</button>
+<button class="print-btn no-print" onclick="window.print()">🖨️ 列印/轉存PDF</button>
 
 <div class="container">
     <h1>週評鑑統計表</h1>
@@ -124,7 +97,6 @@
 
     <script>
         const app = document.getElementById('table-app');
-        // 生成 10 個人員表格
         for (let i = 1; i <= 10; i++) {
             app.insertAdjacentHTML('beforeend', `
                 <table>
@@ -140,7 +112,6 @@
             `);
         }
 
-        // 計算邏輯维持原樣，處理百分比與一般數值的混合計算
         function run(cell) {
             const tbl = cell.closest('table');
             const rowE = tbl.querySelector('.row-expect');
@@ -162,16 +133,6 @@
                     outD[idx].innerText = (eStr === "" && aStr === "") ? "" : res + sfx;
                 } else { outD[idx].innerText = ""; }
             });
-        }
-
-        // 🖨️ PDF 列印邏輯：直接調用原生視窗，穩定性 100%
-        function printToPDF() {
-            // 在列印前自動失去焦點，確保當前輸入欄位內容已寫入網頁
-            if (document.activeElement && document.activeElement.blur) {
-                document.activeElement.blur();
-            }
-            // 調用 iPad 原生列印視窗
-            window.print();
         }
     </script>
 </div>
