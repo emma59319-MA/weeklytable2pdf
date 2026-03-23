@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>週評鑑統計表_專業PDF列印版</title>
+    <style>
+        /* ==============================
+           1. 一般螢幕顯示樣式 (Screen)
+           ============================== */
+        body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #f4f7f4; padding: 10px 20px; color: #333; margin: 0; }
+        
+        .container { max-width: 1500px; margin: 0 auto; background-color: #fff; padding: 15px 30px 30px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
+        
+        /* 專業列印/PDF 按鈕樣式 */
+        .print-btn { position: fixed; top: 15px; right: 20px; background-color: #2e7d32; color: white; border: none; padding: 10px 22px; font-size: 14pt; font-weight: bold; border-radius: 50px; cursor: pointer; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .print-btn:hover { background-color: #1b5e20; transform: scale(1.05); }
+        
+        /* 主標題 43pt */
+        h1 { text-align: center; color: #2e7d32; margin-bottom: 5px; font-size: 43pt; font-weight: 900; }
+        
+        /* 右側日期：靛藍色 18pt */
+        .week-input { text-align: right; margin-bottom: 15px; font-size: 18pt; color: #4b0082; font-weight: bold; }
+        .week-input input { padding: 5px; border: none; width: 70px; text-align: center; font-size: 18pt; outline: none; background: transparent; color: #4b0082; }
+
+        /* 表格通用樣式 (螢幕壓縮版 Padding 9px) */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }
+        th, td { border: 1px solid #2e7d32; text-align: center; padding: 9px 5px; word-wrap: break-word; line-height: 1.2; }
+        
+        /* 標題列：深綠底白字分隔線 */
+        thead tr th { background-color: #2e7d32; color: white; font-weight: bold; font-size: 10pt; height: 40px; border: 1px solid white; }
+        
+        .name-header { width: 60px; }
+        .plan-header { width: 140px; font-weight: bold; }
+
+        /* 輸入字型 14pt，螢幕上居中 */
+        td[contenteditable="true"] { cursor: text; font-size: 14pt; outline: none; min-height: 24px; text-align: center; }
+        td[contenteditable="true"]:focus { background-color: #fffde7; }
+
+        /* 螢幕配色樣式維持原樣 */
+        .row-expect { background-color: #ffffff; color: #333; }
+        .row-expect .plan-cell { color: #2e7d32; }
+        .row-actual { background-color: #e8f5e9; color: #8B4513; } /* 淡綠背，咖啡字 */
+        .row-diff { background-color: #c8e6c9; color: #d32f2f; font-weight: bold; } /* 中綠背，紅字 */
+
+        /* ==============================
+           2. 專業 PDF 列印樣式 (Print)
+           ============================== */
+        @media print {
+            /* 設置紙張大小為 A4 橫向 */
+            @page { 
+                size: A4 landscape; 
+                margin: 1cm; 
+            }
+            
+            body { 
+                background-color: white !important; 
+                -webkit-print-color-adjust: exact !important; /* 強制 Chrome 列印背景色 */
+                print-color-adjust: exact !important;
+                padding: 0 !important;
+            }
+            
+            .container { 
+                box-shadow: none !important; 
+                border-radius: 0 !important; 
+                padding: 0 !important; 
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            
+            /* 列印時隱藏按鈕 */
+            .no-print { display: none !important; }
+            
+            h1 { font-size: 34pt !important; margin-top: 0 !important; }
+            .week-input { font-size: 16pt !important; color: #4b0082 !important; }
+            
+            /* 強制保留表格所有配色 */
+            thead tr th { 
+                background-color: #2e7d32 !important; 
+                color: white !important; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .row-actual { 
+                background-color: #e8f5e9 !important; 
+                color: #8B4513 !important; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .row-diff { 
+                background-color: #c8e6c9 !important; 
+                color: #d32f2f !important; 
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* 優化表格跨頁斷裂問題 */
+            table { 
+                page-break-inside: avoid; /* 儘量避免表格在人員中間被切斷 */
+                margin-bottom: 30px !important;
+            }
+            
+            /* 確保 contenteditable 內容列印 */
+            [contenteditable="true"] {
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="printToPDF()">🖨️ 列印/轉存PDF</button>
+
+<div class="container">
+    <h1>週評鑑統計表</h1>
+    
+    <div class="week-input">
+        <input type="text" class="date-in" inputmode="numeric" placeholder="____"> 月 第 <input type="text" class="date-in" inputmode="numeric" placeholder="____"> 週
+    </div>
+
+    <div id="table-app"></div>
+
+    <script>
+        const app = document.getElementById('table-app');
+        // 生成 10 個人員表格
+        for (let i = 1; i <= 10; i++) {
+            app.insertAdjacentHTML('beforeend', `
+                <table>
+                    <thead>
+                        <tr><th class="name-header">姓名</th><th class="plan-header">計畫</th><th>參訓率<br>(8:30前)</th><th>問卷</th><th>拜訪量</th><th>FYC<br>合計</th><th>FYP<br>合計</th><th>建議書</th><th>轉介</th><th>增員<br>人次</th><th>講座<br>邀約</th><th>收入目標<br>(/月)</th><th>件數<br>(/月)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="row-expect"><td class="name-cell" rowspan="3" contenteditable="true"></td><td class="plan-cell">預計安排</td>${'<td contenteditable="true" class="in-cell" inputmode="decimal" oninput="run(this)"></td>'.repeat(11)}</tr>
+                        <tr class="row-actual"><td class="plan-cell">實際達成</td>${'<td contenteditable="true" class="in-cell" inputmode="decimal" oninput="run(this)"></td>'.repeat(11)}</tr>
+                        <tr class="row-diff"><td class="plan-cell">差額</td>${'<td></td>'.repeat(11)}</tr>
+                    </tbody>
+                </table>
+            `);
+        }
+
+        // 計算邏輯维持原樣，處理百分比與一般數值的混合計算
+        function run(cell) {
+            const tbl = cell.closest('table');
+            const rowE = tbl.querySelector('.row-expect');
+            const rowA = tbl.querySelector('.row-actual');
+            const rowD = tbl.querySelector('.row-diff');
+            const inE = Array.from(rowE.querySelectorAll('.in-cell'));
+            const inA = Array.from(rowA.querySelectorAll('.in-cell'));
+            const outD = Array.from(rowD.querySelectorAll('td:not(.plan-cell):not(.name-cell)'));
+
+            inE.forEach((eInput, idx) => {
+                let eStr = eInput.innerText.trim();
+                let aStr = inA[idx].innerText.trim();
+                let eV = parseFloat(eStr.replace(/[,%]/g, ''));
+                let aV = parseFloat(aStr.replace(/[,%]/g, ''));
+
+                if (!isNaN(eV) || !isNaN(aV)) {
+                    let res = Math.round(((eV || 0) - (aV || 0)) * 100) / 100;
+                    let sfx = (eStr.includes('%') || aStr.includes('%')) ? '%' : '';
+                    outD[idx].innerText = (eStr === "" && aStr === "") ? "" : res + sfx;
+                } else { outD[idx].innerText = ""; }
+            });
+        }
+
+        // 🖨️ PDF 列印邏輯：直接調用原生視窗，穩定性 100%
+        function printToPDF() {
+            // 在列印前自動失去焦點，確保當前輸入欄位內容已寫入網頁
+            if (document.activeElement && document.activeElement.blur) {
+                document.activeElement.blur();
+            }
+            // 調用 iPad 原生列印視窗
+            window.print();
+        }
+    </script>
+</div>
+
+</body>
+</html>
